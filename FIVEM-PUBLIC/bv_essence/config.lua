@@ -14,7 +14,7 @@ Config.FuelDecor = "_FUEL_LEVEL"
 Config.DisableKeys = {0, 22, 23, 24, 29, 30, 31, 37, 44, 56, 82, 140, 166, 167, 168, 170, 288, 289, 311, 323}
 
 -- Want to use the HUD? Turn this to true.
-Config.EnableHUD = true
+Config.EnableHUD = false
 
 -- Configure blips here. Turn both to false to disable blips all together.
 Config.ShowNearestGasStationOnly = true
@@ -22,18 +22,18 @@ Config.ShowAllGasStations = false
 
 -- Configure the strings as you wish here.
 Config.Strings = {
-	ExitVehicle = "Exit the vehicle to refuel",
-	EToRefuel = "Press ~g~E ~w~to refuel vehicle",
-	JerryCanEmpty = "Jerry can is empty",
-	FullTank = "Tank is full",
-	PurchaseJerryCan = "Press ~g~E ~w~to purchase a jerry can for ~g~$" .. Config.JerryCanCost,
-	CancelFuelingPump = "Press ~g~E ~w~to cancel the fueling",
-	CancelFuelingJerryCan = "Press ~g~E ~w~to cancel the fueling",
-	NotEnoughCash = "Not enough cash",
-	RefillJerryCan = "Press ~g~E ~w~ to refill the jerry can for ",
-	NotEnoughCashJerryCan = "Not enough cash to refill jerry can",
-	JerryCanFull = "Jerry can is full",
-	TotalCost = "Cost",
+	ExitVehicle = "Sortir de votre vehicule pour mettre du fuel",
+	EToRefuel = "Appuyer sur ~g~E ~w~pour mettre du fuel.",
+	JerryCanEmpty = "Le JerryCan est vide",
+	FullTank = "La voiture a assez de fuel",
+	PurchaseJerryCan = "Appuyer sur ~g~E ~w~pour acheter un JerryCan pour ~g~$" .. Config.JerryCanCost,
+	CancelFuelingPump = "Appuyer sur ~g~E ~w~pour arreter de mettre du fuel.",
+	CancelFuelingJerryCan = "Appuyer sur ~g~E ~w~pour arreter de mettre du fuel",
+	NotEnoughCash = "Vous n'avez pas assez d'argent",
+	RefillJerryCan = "Appuyer sur ~g~E ~w~pour remplir votre JarryCan pour ",
+	NotEnoughCashJerryCan = "Pas assez d'argent pour remplire le JarryCan",
+	JerryCanFull = "Le JerryCan est rempli",
+	TotalCost = "Prix",
 }
 
 if not Config.UseESX then
@@ -62,28 +62,28 @@ Config.RemoveHUDForBlacklistedVehicle = true
 
 -- Class multipliers. If you want SUVs to use less fuel, you can change it to anything under 1.0, and vise versa.
 Config.Classes = {
-	[0] = 1.0, -- Compacts
-	[1] = 1.0, -- Sedans
-	[2] = 1.0, -- SUVs
-	[3] = 1.0, -- Coupes
-	[4] = 1.0, -- Muscle
-	[5] = 1.0, -- Sports Classics
-	[6] = 1.0, -- Sports
+	[0] = 0.4, -- Compacts
+	[1] = 0.6, -- Sedans
+	[2] = 0.7, -- SUVs
+	[3] = 0.7, -- Coupes
+	[4] = 0.6, -- Muscle
+	[5] = 0.5, -- Sports Classics
+	[6] = 0.8, -- Sports
 	[7] = 1.0, -- Super
-	[8] = 1.0, -- Motorcycles
-	[9] = 1.0, -- Off-road
-	[10] = 1.0, -- Industrial
-	[11] = 1.0, -- Utility
-	[12] = 1.0, -- Vans
+	[8] = 0.3, -- Motorcycles
+	[9] = 0.7, -- Off-road
+	[10] = 0.8, -- Industrial
+	[11] = 0.8, -- Utility
+	[12] = 0.7, -- Vans
 	[13] = 0.0, -- Cycles
-	[14] = 1.0, -- Boats
-	[15] = 1.0, -- Helicopters
-	[16] = 1.0, -- Planes
-	[17] = 1.0, -- Service
-	[18] = 1.0, -- Emergency
-	[19] = 1.0, -- Military
-	[20] = 1.0, -- Commercial
-	[21] = 1.0, -- Trains
+	[14] = 0.3, -- Boats
+	[15] = 0.2, -- Helicopters
+	[16] = 0.2, -- Planes
+	[17] = 0.6, -- Service
+	[18] = 0.3, -- Emergency
+	[19] = 1.5, -- Military
+	[20] = 1.1, -- Commercial
+	[21] = 1.2, -- Trains
 }
 
 -- The left part is at percentage RPM, and the right is how much fuel (divided by 10) you want to remove from the tank every second

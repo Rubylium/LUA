@@ -19,7 +19,7 @@ local inBlacklisted = false
 
 function ManageFuelUsage(vehicle)
 	if not DecorExistOn(vehicle, Config.FuelDecor) then
-		SetFuel(vehicle, math.random(200, 800) / 10)
+		SetFuel(vehicle, math.random(600, 800) / 10)
 	elseif not fuelSynced then
 		SetFuel(vehicle, GetFuel(vehicle))
 
@@ -187,7 +187,10 @@ AddEventHandler('fuel:startFuelUpTick', function(pumpObject, ped, vehicle)
 	end
 
 	if pumpObject then
+		--local prixFinal = round(currentCost)
 		TriggerServerEvent('fuel:pay', currentCost)
+		ESX.ShowAdvancedNotification('Station essence', 'Prise d\'essence terminé!', 'à la prochaine!', 'CHAR_SIMEON', 1)
+  		PlaySoundFrontend(-1, "	Mission_Pass_Notify", "DLC_HEISTS_GENERAL_FRONTEND_SOUNDS", 0)
 	end
 
 	currentCost = 0.0
@@ -205,6 +208,8 @@ AddEventHandler('fuel:refuelFromPump', function(pumpObject, ped, vehicle)
 	SetCurrentPedWeapon(ped, -1569615261, true)
 	LoadAnimDict("timetable@gardener@filling_can")
 	TaskPlayAnim(ped, "timetable@gardener@filling_can", "gar_ig_5_filling_can", 2.0, 8.0, -1, 50, 0, 0, 0, 0)
+	ESX.ShowAdvancedNotification('Station essence', 'Prise d\'essence en cours...', 'Besoi d\'essence ? Aucun problème.', 'CHAR_SIMEON', 1)
+  	PlaySoundFrontend(-1, "CHALLENGE_UNLOCKED", "HUD_AWARDS", 0)
 
 	TriggerEvent('fuel:startFuelUpTick', pumpObject, ped, vehicle)
 
