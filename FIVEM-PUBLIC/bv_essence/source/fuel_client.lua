@@ -148,6 +148,8 @@ function LoadAnimDict(dict)
 			Citizen.Wait(1)
 		end
 	end
+	-- Juste pour de l'opti et éviter de charger en boucle l'animation
+	RemoveAnimDict(dict)
 end
 
 AddEventHandler('fuel:startFuelUpTick', function(pumpObject, ped, vehicle)
