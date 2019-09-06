@@ -2,24 +2,19 @@ ESX = nil
 
 TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
 
--- Ne sert à rien, à retirer pour rendre le code plus leger
 if Config.MaxInService ~= -1 then
 	TriggerEvent('esx_service:activateService', 'taxi', Config.MaxInService)
 end
 
-
--- Initialisation du téléphone pour les appels ( Système à retaper )
 TriggerEvent('esx_phone:registerNumber', 'taxi', _U('taxi_client'), true, true)
 TriggerEvent('esx_society:registerSociety', 'taxi', 'Taxi', 'society_taxi', 'society_taxi', 'society_taxi', {type = 'public'})
 
-
--- Changer les trigger + rajouter detection anti cheat dessus
 RegisterServerEvent('esx_taxijob:success')
 AddEventHandler('esx_taxijob:success', function()
 	local xPlayer = ESX.GetPlayerFromId(source)
 
 	if xPlayer.job.name ~= 'taxi' then
-		print("A faire ici, detection anti cheat")
+		print(('esx_taxijob: %s attempted to trigger success!'):format(xPlayer.identifier))
 		return
 	end
 
@@ -43,7 +38,6 @@ AddEventHandler('esx_taxijob:success', function()
 		xPlayer.addMoney(playerMoney)
 		societyAccount.addMoney(societyMoney)
 
-		-- Retirer tout les _U inutile, faire directement le texte dans le code
 		TriggerClientEvent('esx:showNotification', xPlayer.source, _U('comp_earned', societyMoney, playerMoney))
 	else
 		xPlayer.addMoney(total)
@@ -56,9 +50,8 @@ RegisterServerEvent('esx_taxijob:getStockItem')
 AddEventHandler('esx_taxijob:getStockItem', function(itemName, count)
 	local xPlayer = ESX.GetPlayerFromId(source)
 
-	-- Pareil, faire une detetion anti cheat
 	if xPlayer.job.name ~= 'taxi' then
-		print("Faire la detection anti cheat ici")
+		print(('esx_taxijob: %s attempted to trigger getStockItem!'):format(xPlayer.identifier))
 		return
 	end
 	
@@ -93,9 +86,8 @@ RegisterServerEvent('esx_taxijob:putStockItems')
 AddEventHandler('esx_taxijob:putStockItems', function(itemName, count)
 	local xPlayer = ESX.GetPlayerFromId(source)
 
-	-- Encore une detection anti cheat à faire
 	if xPlayer.job.name ~= 'taxi' then
-		print("Deection anti cheat ici aussi")
+		print(('esx_taxijob: %s attempted to trigger putStockItems!'):format(xPlayer.identifier))
 		return
 	end
 
@@ -120,3 +112,37 @@ ESX.RegisterServerCallback('esx_taxijob:getPlayerInventory', function(source, cb
 
 	cb( { items = items } )
 end)
+
+
+
+-- Notification appel taxi pour tout les taxi
+RegisterServerEvent("Server:TaxiAppel")
+AddEventHandler("Server:TaxiAppel", function(coords)
+	--local xPlayer = ESX.GetPlayerFromId(source)
+	local _coords = coords
+	local xPlayers	= ESX.GetPlayers()
+
+	for i=1, #xPlayers, 1 do
+		local xPlayer = ESX.GetPlayerFromId(xPlayers[i])
+          if xPlayer.job.name == 'taxi' then
+               TriggerClientEvent("AppelTaxiTropBien", xPlayers[i], _coords)
+		end
+	end
+end)
+
+-- Prise d'appel taxi
+RegisterServerEvent('PriseAppelServeur')
+AddEventHandler('PriseAppelServeur', function()
+	local _source = source
+	local xPlayer = ESX.GetPlayerFromId(_source)
+	local name = xPlayer.getName(source)
+	local xPlayers = ESX.GetPlayers()
+
+	for i = 1, #xPlayers, 1 do
+		local thePlayer = ESX.GetPlayerFromId(xPlayers[i])
+		if thePlayer.job.name == 'taxi' then
+			TriggerClientEvent('AppelDejaPris', xPlayers[i])
+		end
+	end
+end)
+

@@ -134,11 +134,11 @@ function OpenCloakroom()
 	ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'taxi_cloakroom',
 	{
 		css      = 'taxivestiaire',
-		title    = _U('cloakroom_menu'),
+		title    = "Vétisaire",
 		align    = 'top-left',
 		elements = {
-			{ label = _U('wear_citizen'), value = 'wear_citizen' },
-			{ label = _U('wear_work'),    value = 'wear_work'}
+			{ label = "Tenue civil", value = 'wear_citizen' },
+			{ label = "Tenue de travail",    value = 'wear_work'}
 		}
 	}, function(data, menu)
 		if data.current.value == 'wear_citizen' then
@@ -168,106 +168,54 @@ function OpenVehicleSpawnerMenu()
 
 	local elements = {}
 
-	if Config.EnableSocietyOwnedVehicles then
+	ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'vehicle_spawner',
+	{
+		css         = 'taxigarage',
+		title		= "Sortir un véhicule",
+		align		= 'top-left',
+		elements	= Config.AuthorizedVehicles
+	}, function(data, menu)
+		if not ESX.Game.IsSpawnPointClear(Config.Zones.VehicleSpawnPoint.Pos, 5.0) then
+			ESX.ShowNotification("Point de spawn bloqué")
+			return
+		end
 
-		ESX.TriggerServerCallback('esx_society:getVehiclesInGarage', function(vehicles)
-
-			for i=1, #vehicles, 1 do
-				table.insert(elements, {
-					label = GetDisplayNameFromVehicleModel(vehicles[i].model) .. ' [' .. vehicles[i].plate .. ']',
-					value = vehicles[i]
-				})
-			end
-
-			ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'vehicle_spawner',
-			{
-				css      = 'taxigarage',
-				title    = _U('spawn_veh'),
-				align    = 'top-left',
-				elements = elements
-			}, function(data, menu)
-				if not ESX.Game.IsSpawnPointClear(Config.Zones.VehicleSpawnPoint.Pos, 5.0) then
-					ESX.ShowNotification(_U('spawnpoint_blocked'))
-					return
-				end
-
-				menu.close()
-
-				local vehicleProps = data.current.value
-				ESX.Game.SpawnVehicle(vehicleProps.model, Config.Zones.VehicleSpawnPoint.Pos, Config.Zones.VehicleSpawnPoint.Heading, function(vehicle)
-					ESX.Game.SetVehicleProperties(vehicle, vehicleProps)
-					local playerPed = PlayerPedId()
-					TaskWarpPedIntoVehicle(playerPed, vehicle, -1)
-				end)
-
-				TriggerServerEvent('esx_society:removeVehicleFromGarage', 'taxi', vehicleProps)
-
-			end, function(data, menu)
-				CurrentAction     = 'vehicle_spawner'
-				CurrentActionMsg  = _U('spawner_prompt')
-				CurrentActionData = {}
-
-				menu.close()
-			end)
-		end, 'taxi')
-
-	else -- not society vehicles
-
-		ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'vehicle_spawner',
-		{
-			css         = 'taxigarage',
-			title		= _U('spawn_veh'),
-			align		= 'top-left',
-			elements	= Config.AuthorizedVehicles
-		}, function(data, menu)
-			if not ESX.Game.IsSpawnPointClear(Config.Zones.VehicleSpawnPoint.Pos, 5.0) then
-				ESX.ShowNotification(_U('spawnpoint_blocked'))
-				return
-			end
-
-			menu.close()
-			ESX.Game.SpawnVehicle(data.current.model, Config.Zones.VehicleSpawnPoint.Pos, Config.Zones.VehicleSpawnPoint.Heading, function(vehicle)
-				local playerPed = PlayerPedId()
-				TaskWarpPedIntoVehicle(playerPed, vehicle, -1)
-			end)
-		end, function(data, menu)
-			CurrentAction     = 'vehicle_spawner'
-			CurrentActionMsg  = _U('spawner_prompt')
-			CurrentActionData = {}
-
-			menu.close()
+		menu.close()
+		ESX.Game.SpawnVehicle(data.current.model, Config.Zones.VehicleSpawnPoint.Pos, Config.Zones.VehicleSpawnPoint.Heading, function(vehicle)
+			local playerPed = PlayerPedId()
+			TaskWarpPedIntoVehicle(playerPed, vehicle, -1)
 		end)
-	end
+	end, function(data, menu)
+		CurrentAction     = 'vehicle_spawner'
+		CurrentActionMsg  = "Appuye sur ~b~[E]~w~ Pour sortir un véhicule"
+		CurrentActionData = {}
+
+		menu.close()
+	end)
 end
 
 function DeleteJobVehicle()
 	local playerPed = PlayerPedId()
 
-	if Config.EnableSocietyOwnedVehicles then
-		local vehicleProps = ESX.Game.GetVehicleProperties(CurrentActionData.vehicle)
-		TriggerServerEvent('esx_society:putVehicleInGarage', 'taxi', vehicleProps)
+	if IsInAuthorizedVehicle() then
 		ESX.Game.DeleteVehicle(CurrentActionData.vehicle)
-	else
-		if IsInAuthorizedVehicle() then
-			ESX.Game.DeleteVehicle(CurrentActionData.vehicle)
 
-			if Config.MaxInService ~= -1 then
-				TriggerServerEvent('esx_service:disableService', 'taxi')
-			end
-		else
-			ESX.ShowNotification(_U('only_taxi'))
+		if Config.MaxInService ~= -1 then
+			TriggerServerEvent('esx_service:disableService', 'taxi')
 		end
+	else
+		ESX.ShowNotification("Tu n'est pas en taxi.")
 	end
 end
 
 function OpenTaxiActionsMenu()
 	local elements = {
-		{label = _U('deposit_stock'), value = 'put_stock'},
-		{label = _U('take_stock'), value = 'get_stock'}
+		{label = "Déposer dans le stock", value = 'put_stock'},
+		{label = "Prendre du stock", value = 'get_stock'}
 	}
 
 	if Config.EnablePlayerManagement and ESX.PlayerData.job ~= nil and ESX.PlayerData.job.grade_name == 'boss' then
-		table.insert(elements, {label = _U('boss_actions'), value = 'boss_actions'})
+		table.insert(elements, {label = "Action Patron", value = 'boss_actions'})
 	end
 
 	ESX.UI.Menu.CloseAll()
@@ -294,7 +242,7 @@ function OpenTaxiActionsMenu()
 		menu.close()
 
 		CurrentAction     = 'taxi_actions_menu'
-		CurrentActionMsg  = _U('press_to_open')
+		CurrentActionMsg  = "Appuyer sur ~b~[E]~w~ Pour ouvrir"
 		CurrentActionData = {}
 	end)
 end
@@ -308,28 +256,28 @@ function OpenMobileTaxiActionsMenu()
 		title    = 'Taxi',
 		align    = 'top-left',
 		elements = {
-			{ label = _U('billing'),   value = 'billing' },
-			{ label = _U('start_job'), value = 'start_job' }
+			{ label = "Donner une facture",   value = 'billing' }
+			--{ label = "Commencer les missions PNJ", value = 'start_job' }
 		}
 	}, function(data, menu)
 		if data.current.value == 'billing' then
 
 			ESX.UI.Menu.Open('dialog', GetCurrentResourceName(), 'billing', {
 				css      = 'taxifacture',
-				title = _U('invoice_amount')
+				title = "Montant"
 			}, function(data, menu)
 
 				local amount = tonumber(data.value)
 				if amount == nil then
-					ESX.ShowNotification(_U('amount_invalid'))
+					ESX.ShowNotification("Montant invalide")
 				else
 					menu.close()
 					local closestPlayer, closestDistance = ESX.Game.GetClosestPlayer()
 					if closestPlayer == -1 or closestDistance > 3.0 then
-						ESX.ShowNotification(_U('no_players_near'))
+						ESX.ShowNotification("Pas de joueur proche")
 					else
 						TriggerServerEvent('esx_billing:sendBill', GetPlayerServerId(closestPlayer), 'society_taxi', 'Taxi', amount)
-						ESX.ShowNotification(_U('billing_sent'))
+						ESX.ShowNotification("Facture envoyer")
 					end
 
 				end
@@ -337,34 +285,6 @@ function OpenMobileTaxiActionsMenu()
 			end, function(data, menu)
 				menu.close()
 			end)
-
-		elseif data.current.value == 'start_job' then
-			if OnJob then
-				StopTaxiJob()
-			else
-				if ESX.PlayerData.job ~= nil and ESX.PlayerData.job.name == 'taxi' then
-					local playerPed = PlayerPedId()
-					local vehicle   = GetVehiclePedIsIn(playerPed, false)
-
-					if IsPedInAnyVehicle(playerPed, false) and GetPedInVehicleSeat(vehicle, -1) == playerPed then
-						if tonumber(ESX.PlayerData.job.grade) >= 3 then
-							StartTaxiJob()
-						else
-							if IsInAuthorizedVehicle() then
-								StartTaxiJob()
-							else
-								ESX.ShowNotification(_U('must_in_taxi'))
-							end
-						end
-					else
-						if tonumber(ESX.PlayerData.job.grade) >= 3 then
-							ESX.ShowNotification(_U('must_in_vehicle'))
-						else
-							ESX.ShowNotification(_U('must_in_taxi'))
-						end
-					end
-				end
-			end
 		end
 	end, function(data, menu)
 		menu.close()
@@ -544,7 +464,7 @@ Citizen.CreateThread(function()
 	SetBlipSprite (blip, 198)
 	SetBlipDisplay(blip, 4)
 	SetBlipScale  (blip, 1.0)
-	--SetBlipColour (blip, 5)
+	SetBlipColour (blip, 5)
 	SetBlipAsShortRange(blip, true)
 
 	BeginTextCommandSetBlipName("STRING")
@@ -791,4 +711,115 @@ end)
 
 AddEventHandler('playerSpawned', function(spawn)
 	IsDead = false
+end)
+
+
+
+
+--
+--
+--      Rework appel taxi ici 
+--
+--
+
+
+local AppelPris = false
+local AppelDejaPris = false
+local AppelEnAttente = false 
+local AppelCoords = nil
+
+
+
+
+-- Prise de coords des appels
+RegisterNetEvent("AppelTaxiGetCoords")
+AddEventHandler("AppelTaxiGetCoords", function()
+	ped = GetPlayerPed(-1)
+	coords = GetEntityCoords(ped, true)
+	TriggerServerEvent("Server:TaxiAppel", coords)
+end)
+
+
+
+-- Register de l'appel
+RegisterNetEvent("AppelTaxiTropBien")
+AddEventHandler("AppelTaxiTropBien", function(coords)
+	AppelEnAttente = true
+	AppelCoords = coords
+	ESX.ShowAdvancedNotification("Taxi", "~b~Demande de taxi", "Quelqu'un à besoin d'un taxi !\n~g~Y~w~ pour prendre l'appel\n~r~X~w~ pour refuser", "CHAR_TAXI", 8)
+end)
+
+
+
+Citizen.CreateThread(function()
+     while true do
+		Citizen.Wait(1)
+		-- Un IF en plus pour éviter la surcharge du script
+		if AppelEnAttente then
+			if IsControlJustPressed(1, 246) and AppelEnAttente then
+				if ESX.PlayerData.job ~= nil and ESX.PlayerData.job.name == 'taxi' then
+					TriggerServerEvent('PriseAppelServeur')
+					TriggerEvent('TaxiAppelPris', AppelCoords)
+				end 
+			elseif IsControlJustPressed(1, 73) and AppelEnAttente then
+				ESX.ShowAdvancedNotification("Taxi", "~b~Demande de taxi", "Vous avez refuser l'appel.", "CHAR_TAXI", 8)
+				AppelEnAttente = false
+				attente = false
+				AppelDejaPris = false
+			end
+		end
+		
+		if IsControlJustPressed(1, 246) and AppelDejaPris == true then
+			ESX.ShowAdvancedNotification("Taxi", "~b~Demande de taxi", "L'appel à déja été pris, désolé.", "CHAR_TAXI", 8)
+		end
+     end
+end)
+
+
+RegisterNetEvent("AppelDejaPris")
+AddEventHandler("AppelDejaPris", function()
+	AppelEnAttente = false
+	AppelDejaPris = true
+	Citizen.Wait(10000)
+	AppelDejaPris = false
+end)
+
+
+-- Prise d'appel taxi
+RegisterNetEvent("TaxiAppelPris")
+AddEventHandler("TaxiAppelPris", function(AppelCoords)
+	ESX.ShowAdvancedNotification("Taxi", "~b~Demande de taxi", "Vous avez pris l'appel, suivez la route GPS.", "CHAR_TAXI", 8)
+	local wait = 0
+	-- Blip de la zone
+	local TaxiBlip = AddBlipForCoord(AppelCoords)
+	SetBlipSprite(TaxiBlip, 280)
+	SetBlipColour(TaxiBlip, 5)
+	SetBlipShrink(TaxiBlip, true)
+	SetBlipScale(TaxiBlip, 1.2)
+	BeginTextCommandSetBlipName("STRING")
+	AddTextComponentSubstringPlayerName("~b~Appel Taxi")
+	EndTextCommandSetBlipName(TaxiBlip)
+
+	-- Ajout du deuxième blip plus animer
+
+	local TaxiBlip2 = AddBlipForCoord(coords)
+	SetBlipSprite(TaxiBlip2, 42)
+	SetBlipColour(TaxiBlip2, 5)
+	SetBlipShrink(TaxiBlip2, true)
+	SetBlipScale(TaxiBlip2, 1.2)
+	SetBlipAlpha(TaxiBlip2, 120)
+	BeginTextCommandSetBlipName("STRING")
+	AddTextComponentSubstringPlayerName("~b~Appel Taxi")
+	EndTextCommandSetBlipName(TaxiBlip2)
+	-- Ajout de la route
+	SetBlipRoute(TaxiBlip, true)
+
+
+	while wait < 120 do
+		wait = wait + 1
+		Wait(1000)
+	end
+	-- Blip retiré
+	RemoveBlip(TaxiBlip)
+	RemoveBlip(TaxiBlip2)
 end)
