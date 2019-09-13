@@ -729,8 +729,6 @@ local AppelEnAttente = false
 local AppelCoords = nil
 
 
-
-
 -- Prise de coords des appels
 RegisterNetEvent("AppelTaxiGetCoords")
 AddEventHandler("AppelTaxiGetCoords", function()
